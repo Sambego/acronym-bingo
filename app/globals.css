@@ -1,0 +1,196 @@
+/* Palette and type borrowed from sambego.tech */
+:root {
+  --bg: #d8dee9;
+  --fg: #1b2b34;
+  --muted: #4f5b66;
+  --accent: #3f7a3a;
+  --line: #1b2b34;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1b2b34;
+    --fg: #d8dee9;
+    --muted: #c0c5ce;
+    --accent: #99c794;
+    --line: #c0c5ce;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Courier New", Courier, monospace;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+main {
+  min-height: 100dvh;
+  width: min(100% - 1.5rem, 34rem);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: max(1.5rem, env(safe-area-inset-top)) 0 max(1.5rem, env(safe-area-inset-bottom));
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 7vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1;
+}
+h1::before { content: "$ "; color: var(--accent); }
+
+.status {
+  margin: 0;
+  min-height: 1.4em;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.status.win { color: var(--accent); font-weight: 700; animation: fade-in 0.4s ease-out; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(2px); } }
+
+/* Table-like grid with shared 1px lines, like the site's ASCII tables */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  position: relative;
+  --dash: 10px;
+  --gap: 6px;
+}
+.cell {
+  min-width: 0;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  text-align: left;
+  padding: clamp(0.4rem, 2.2vw, 0.9rem);
+  font: inherit;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  color: var(--fg);
+  background: transparent;
+  border: 0;
+  position: relative;
+  border-radius: 0;
+  cursor: pointer;
+}
+/* Dashed lines drawn with gradients so dash/gap lengths are adjustable */
+.cell::after,
+.grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-repeat: repeat-x, repeat-y;
+}
+.cell::after {
+  background-image:
+    linear-gradient(to right, var(--line) 0 var(--dash), transparent var(--dash) calc(var(--dash) + var(--gap))),
+    linear-gradient(to bottom, var(--line) 0 var(--dash), transparent var(--dash) calc(var(--dash) + var(--gap)));
+  background-size: calc(var(--dash) + var(--gap)) 1px, 1px calc(var(--dash) + var(--gap));
+  background-position: left bottom, right top;
+}
+.grid::after {
+  background-image:
+    linear-gradient(to right, var(--line) 0 var(--dash), transparent var(--dash) calc(var(--dash) + var(--gap))),
+    linear-gradient(to bottom, var(--line) 0 var(--dash), transparent var(--dash) calc(var(--dash) + var(--gap)));
+  background-size: calc(var(--dash) + var(--gap)) 1px, 1px calc(var(--dash) + var(--gap));
+  background-position: left top, left top;
+}
+
+.cell:hover .term { border-bottom-color: transparent; background: var(--accent); color: var(--bg); }
+.cell:focus-visible { outline: 2px dotted var(--accent); outline-offset: -4px; }
+
+.label { display: flex; flex-direction: column; gap: 0.4rem; max-width: 100%; min-width: 0; overflow-wrap: anywhere;
+  hyphens: auto; }
+.term {
+  align-self: flex-start;
+  font-size: clamp(1rem, 5.2vw, 1.5rem);
+  line-height: 1;
+  border-bottom: 1px dotted transparent;
+}
+.meaning {
+  font-size: clamp(0.65rem, 2.7vw, 0.75rem);
+  line-height: 1.25;
+  color: var(--muted);
+}
+
+/* Selected: styled like the site's links (green, dotted underline) */
+.cell.on .term { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Completed line: styled like a hovered link (accent fill) */
+.cell.line {
+  background: var(--accent);
+  color: var(--bg);
+  animation: line-in 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: calc(var(--i) * 40ms);
+}
+.cell.line .term { color: var(--bg); border-bottom-color: transparent; }
+.cell.line .meaning { color: var(--bg); opacity: 0.8; }
+@keyframes line-in {
+  0% { background: transparent; transform: scale(0.96); }
+  60% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+.new {
+  align-self: stretch;
+  min-height: 3rem;
+  touch-action: manipulation;
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 0.6rem 0.9rem;
+  position: relative;
+  --dash: 10px;
+  --gap: 6px;
+  border: 0;
+  border-radius: 0;
+  --d: linear-gradient(to right, var(--line) 0 var(--dash), transparent var(--dash) calc(var(--dash) + var(--gap)));
+  --v: linear-gradient(to bottom, var(--line) 0 var(--dash), transparent var(--dash) calc(var(--dash) + var(--gap)));
+  background-color: transparent;
+  background-image: var(--d), var(--d), var(--v), var(--v);
+  background-size:
+    calc(var(--dash) + var(--gap)) 1px, calc(var(--dash) + var(--gap)) 1px,
+    1px calc(var(--dash) + var(--gap)), 1px calc(var(--dash) + var(--gap));
+  background-position: left top, left bottom, left top, right top;
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  color: var(--accent);
+  cursor: pointer;
+}
+.new::before { content: "[ "; }
+.new::after { content: " ]"; }
+.new:hover { background-color: var(--accent); color: var(--bg); }
+
+footer {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: center;
+}
+footer p { margin: 0; }
+a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent);
+}
+a:hover { border-bottom-color: transparent; background: var(--accent); color: var(--bg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cell.line, .status.win { animation: none; }
+}
+
+@media (max-width: 360px) {
+  .cell { padding: 0.35rem; }
+  .term { font-size: 0.95rem; }
+  .meaning { font-size: 0.6rem; }
+}
